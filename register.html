@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h2>Join StayBuddy 🎓</h2>
+    <p class="sub">Create a free account to get started</p>
+
+    <form method="post">
+      <!-- Role Selector -->
+      <div class="form-group">
+        <label>I am a</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.4rem;">
+          {% for val, label, icon in [('student','Student','🎓'),('owner','Hostel Owner','🏠')] %}
+            <label style="cursor:pointer;">
+              <input type="radio" name="role" value="{{ val }}" {% if loop.first %}checked{% endif %} style="display:none;" id="role_{{ val }}">
+              <div class="role-btn" data-for="{{ val }}" style="border:2px solid var(--border);border-radius:10px;padding:1rem;text-align:center;transition:all .2s;">
+                <div style="font-size:1.8rem;margin-bottom:.4rem;">{{ icon }}</div>
+                <div style="font-weight:600;font-size:.92rem;">{{ label }}</div>
+              </div>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="name">Full Name *</label>
+        <input type="text" id="name" name="name" class="form-control" placeholder="Your full name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" class="form-control" placeholder="10-digit mobile number">
+      </div>
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Min 6 characters" minlength="6" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:.5rem;">Create Account →</button>
+    </form>
+
+    <p style="text-align:center;margin-top:1.25rem;font-size:.9rem;color:var(--muted);">
+      Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+    </p>
+  </div>
+</div>
+
+<style>
+  .role-btn.selected { border-color: var(--primary) !important; background: #ede9fe; }
+</style>
+<script>
+  document.querySelectorAll('input[name="role"]').forEach(radio => {
+    radio.addEventListener("change", function() {
+      document.querySelectorAll(".role-btn").forEach(b => b.classList.remove("selected"));
+      document.querySelector(`.role-btn[data-for="${this.value}"]`).classList.add("selected");
+    });
+  });
+  // init
+  document.querySelector('input[name="role"]:checked')?.dispatchEvent(new Event("change"));
+</script>
+{% endblock %}

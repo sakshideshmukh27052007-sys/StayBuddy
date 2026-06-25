@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Edit – {{ hostel['name'] }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:860px;">
+  <div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('owner_dashboard') }}" style="color:var(--muted);font-size:.9rem;">← Back to Dashboard</a>
+    <h1 style="margin-top:.5rem;">Edit: {{ hostel['name'] }}</h1>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;" class="form-grid">
+
+      <!-- Left -->
+      <div>
+        <div class="card card-body" style="margin-bottom:1.25rem;">
+          <h3 style="margin-bottom:1rem;">Basic Information</h3>
+          <div class="form-group">
+            <label>Hostel / PG Name *</label>
+            <input type="text" name="name" class="form-control" value="{{ hostel['name'] }}" required>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="4">{{ hostel['description'] }}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Monthly Rent (₹) *</label>
+            <input type="number" name="monthly_rent" class="form-control" value="{{ hostel['monthly_rent'] }}" required>
+          </div>
+          <div class="form-group">
+            <label>Gender Preference</label>
+            <select name="gender_pref" class="form-control">
+              {% for val, lbl in [('any','Co-ed'),('male','Boys Only'),('female','Girls Only')] %}
+                <option value="{{ val }}" {% if hostel['gender_pref']==val %}selected{% endif %}>{{ lbl }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Vacancy Status</label>
+            <select name="vacancy_status" class="form-control">
+              {% for val, lbl in [('available','Available'),('limited','Limited Seats'),('full','Full / No Vacancy')] %}
+                <option value="{{ val }}" {% if hostel['vacancy_status']==val %}selected{% endif %}>{{ lbl }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="card card-body">
+          <h3 style="margin-bottom:1rem;">Contact &amp; Location</h3>
+          <div class="form-group">
+            <label>Contact Number</label>
+            <input type="tel" name="contact_number" class="form-control" value="{{ hostel['contact_number'] }}">
+          </div>
+          <div class="form-group">
+            <label>Google Maps Link</label>
+            <input type="url" name="maps_link" class="form-control" value="{{ hostel['maps_link'] }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div>
+        <div class="card card-body" style="margin-bottom:1.25rem;">
+          <h3 style="margin-bottom:1rem;">Address</h3>
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" name="city" class="form-control" value="{{ hostel['city'] }}" required>
+          </div>
+          <div class="form-group">
+            <label>Area / Locality *</label>
+            <input type="text" name="area" class="form-control" value="{{ hostel['area'] }}" required>
+          </div>
+          <div class="form-group">
+            <label>Nearest College</label>
+            <input type="text" name="college_nearby" class="form-control" value="{{ hostel['college_nearby'] }}">
+          </div>
+        </div>
+
+        <div class="card card-body" style="margin-bottom:1.25rem;">
+          <h3 style="margin-bottom:1rem;">Facilities</h3>
+          <div class="checkbox-grid">
+            {% for f in ['WiFi','Meals Included','Laundry','24/7 Security','Hot Water','Study Room','AC Rooms','CCTV','Gym','Common Hall','Cafeteria','Library','Power Backup','Parking','Fridge','Study Table'] %}
+              <label class="checkbox-label">
+                <input type="checkbox" name="facilities" value="{{ f }}" {% if f in facilities %}checked{% endif %}> {{ f }}
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Existing Photos -->
+        {% if photos %}
+          <div class="card card-body" style="margin-bottom:1.25rem;">
+            <h3 style="margin-bottom:1rem;">Current Photos</h3>
+            <div class="photo-grid">
+              {% for p in photos %}
+                <div class="photo-thumb">
+                  <img src="{{ url_for('uploaded_file', filename=p['filename']) }}" alt="">
+                  {% if p['is_primary'] %}<span style="position:absolute;bottom:4px;left:4px;background:var(--primary);color:#fff;font-size:.65rem;padding:2px 5px;border-radius:4px;">Main</span>{% endif %}
+                  <form method="post" action="{{ url_for('delete_photo', photo_id=p['id']) }}" style="display:inline;" onsubmit="return confirm('Delete this photo?');">
+                    <button type="submit" class="del-btn">✕</button>
+                  </form>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Add More Photos -->
+        <div class="card card-body">
+          <h3 style="margin-bottom:.5rem;">Add More Photos</h3>
+          <input type="file" id="photo-input" name="photos" multiple accept="image/*" class="form-control" style="padding:.4rem;">
+          <div id="photo-preview" class="photo-grid" style="margin-top:.75rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem;display:flex;gap:.75rem;justify-content:flex-end;">
+      <a href="{{ url_for('owner_dashboard') }}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary btn-lg">Save Changes →</button>
+    </div>
+  </form>
+</div>
+<style>@media(max-width:700px){.form-grid{grid-template-columns:1fr;}}</style>
+{% endblock %}

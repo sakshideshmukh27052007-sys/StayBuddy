@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Owner Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem;">
+    <div>
+      <h1>My Dashboard</h1>
+      <p class="text-muted">Welcome back, {{ current_user['name'] }} 👋</p>
+    </div>
+    <a href="{{ url_for('add_hostel') }}" class="btn btn-primary">+ Add New Hostel</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-icon">🏠</span>
+      <div>
+        <div class="stat-value">{{ hostels|length }}</div>
+        <div class="stat-label">Total Listings</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">📬</span>
+      <div>
+        <div class="stat-value">{{ total_inquiries }}</div>
+        <div class="stat-label">New Inquiries</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">💬</span>
+      <div>
+        <div class="stat-value">{{ unread_messages }}</div>
+        <div class="stat-label">Unread Messages</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">✅</span>
+      <div>
+        <div class="stat-value">{{ hostels|selectattr('vacancy_status','eq','available')|list|length }}</div>
+        <div class="stat-label">Available Now</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:2rem;">
+    <a href="{{ url_for('owner_inquiries') }}" class="btn btn-secondary">
+      📬 View Inquiries {% if total_inquiries > 0 %}<span class="nav-badge">{{ total_inquiries }}</span>{% endif %}
+    </a>
+    <a href="{{ url_for('messages') }}" class="btn btn-secondary">
+      💬 Messages {% if unread_messages > 0 %}<span class="nav-badge">{{ unread_messages }}</span>{% endif %}
+    </a>
+    <a href="{{ url_for('meetings') }}" class="btn btn-secondary">📅 Visit Requests</a>
+  </div>
+
+  <!-- Hostel Listings -->
+  <div class="section-heading">
+    <h2>Your Listings</h2>
+  </div>
+
+  {% if hostels %}
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      {% for h in hostels %}
+        <div class="card">
+          <div style="display:grid;grid-template-columns:140px 1fr auto;gap:1.25rem;align-items:center;padding:1.25rem;" class="listing-row">
+            <!-- Thumb -->
+            {% if h['primary_photo'] %}
+              <img src="{{ url_for('uploaded_file', filename=h['primary_photo']) }}" alt="{{ h['name'] }}" style="width:140px;height:100px;object-fit:cover;border-radius:8px;">
+            {% else %}
+              <div style="width:140px;height:100px;background:linear-gradient(135deg,#4f46e5,#06b6d4);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🏠</div>
+            {% endif %}
+
+            <!-- Info -->
+            <div>
+              <h3 style="margin-bottom:.3rem;">{{ h['name'] }}</h3>
+              <p class="text-muted" style="font-size:.88rem;margin-bottom:.5rem;">📍 {{ h['area'] }}, {{ h['city'] }} · Near {{ h['college_nearby'] or '—' }}</p>
+              <p style="font-size:1.1rem;font-weight:700;color:var(--primary);margin-bottom:.5rem;">₹{{ '{:,}'.format(h['monthly_rent']) }}/month</p>
+              <div class="hostel-badges">
+                {% if h['vacancy_status'] == 'available' %}
+                  <span class="badge badge-success">✔ Available</span>
+                {% elif h['vacancy_status'] == 'limited' %}
+                  <span class="badge badge-warning">⚡ Limited</span>
+                {% else %}
+                  <span class="badge badge-danger">✗ Full</span>
+                {% endif %}
+                {% if h['new_inquiries'] > 0 %}
+                  <span class="badge badge-blue">📬 {{ h['new_inquiries'] }} new inquiry</span>
+                {% endif %}
+                {% if h['pending_meetings'] > 0 %}
+                  <span class="badge badge-purple">📅 {{ h['pending_meetings'] }} visit request</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;flex-direction:column;gap:.5rem;min-width:120px;">
+              <a href="{{ url_for('hostel_detail', hostel_id=h['id']) }}" class="btn btn-secondary btn-sm">👁 View</a>
+              <a href="{{ url_for('edit_hostel', hostel_id=h['id']) }}" class="btn btn-primary btn-sm">✏️ Edit</a>
+              <form method="post" action="{{ url_for('delete_hostel', hostel_id=h['id']) }}" onsubmit="return confirm('Delete this hostel? This cannot be undone.');">
+                <button type="submit" class="btn btn-danger btn-sm btn-block">🗑 Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🏠</div>
+      <h3>No listings yet</h3>
+      <p>Add your first hostel to start receiving inquiries from students.</p>
+      <a href="{{ url_for('add_hostel') }}" class="btn btn-primary" style="margin-top:1rem;">Add Hostel →</a>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+  @media(max-width:600px){
+    .listing-row{grid-template-columns:1fr;text-align:center;}
+    .listing-row img, .listing-row div:first-child{width:100%!important;height:180px!important;}
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Add New Hostel{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:860px;">
+  <div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('owner_dashboard') }}" style="color:var(--muted);font-size:.9rem;">← Back to Dashboard</a>
+    <h1 style="margin-top:.5rem;">Add New Hostel Listing</h1>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;" class="form-grid">
+
+      <!-- Left -->
+      <div>
+        <div class="card card-body" style="margin-bottom:1.25rem;">
+          <h3 style="margin-bottom:1rem;">Basic Information</h3>
+
+          <div class="form-group">
+            <label>Hostel / PG Name *</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Green Valley PG" required>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="4" placeholder="Describe your property, atmosphere, rules…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Monthly Rent (₹) *</label>
+            <input type="number" name="monthly_rent" class="form-control" placeholder="e.g. 7500" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Gender Preference</label>
+            <select name="gender_pref" class="form-control">
+              <option value="any">Co-ed (Any)</option>
+              <option value="male">Boys Only</option>
+              <option value="female">Girls Only</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Vacancy Status</label>
+            <select name="vacancy_status" class="form-control">
+              <option value="available">Available</option>
+              <option value="limited">Limited Seats</option>
+              <option value="full">Full / No Vacancy</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card card-body">
+          <h3 style="margin-bottom:1rem;">Contact &amp; Location</h3>
+          <div class="form-group">
+            <label>Contact Number *</label>
+            <input type="tel" name="contact_number" class="form-control" placeholder="10-digit mobile number" required>
+          </div>
+          <div class="form-group">
+            <label>Google Maps Link</label>
+            <input type="url" name="maps_link" class="form-control" placeholder="https://maps.google.com/?q=…">
+            <div class="form-hint">Open Google Maps → Share → Copy link</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div>
+        <div class="card card-body" style="margin-bottom:1.25rem;">
+          <h3 style="margin-bottom:1rem;">Address</h3>
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" name="city" class="form-control" placeholder="e.g. Delhi" required>
+          </div>
+          <div class="form-group">
+            <label>Area / Locality *</label>
+            <input type="text" name="area" class="form-control" placeholder="e.g. North Campus" required>
+          </div>
+          <div class="form-group">
+            <label>Nearest College</label>
+            <input type="text" name="college_nearby" class="form-control" placeholder="e.g. Delhi University">
+          </div>
+        </div>
+
+        <div class="card card-body" style="margin-bottom:1.25rem;">
+          <h3 style="margin-bottom:1rem;">Facilities &amp; Amenities</h3>
+          <div class="checkbox-grid">
+            {% for f in ['WiFi','Meals Included','Laundry','24/7 Security','Hot Water','Study Room','AC Rooms','CCTV','Gym','Common Hall','Cafeteria','Library','Power Backup','Parking','Fridge','Study Table'] %}
+              <label class="checkbox-label">
+                <input type="checkbox" name="facilities" value="{{ f }}"> {{ f }}
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="card card-body">
+          <h3 style="margin-bottom:1rem;">Photos</h3>
+          <p class="text-muted" style="font-size:.85rem;margin-bottom:.75rem;">Upload up to 8 photos. First photo will be the main image.</p>
+          <input type="file" id="photo-input" name="photos" multiple accept="image/*" class="form-control" style="padding:.4rem;">
+          <div id="photo-preview" class="photo-grid" style="margin-top:.75rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem;display:flex;gap:.75rem;justify-content:flex-end;">
+      <a href="{{ url_for('owner_dashboard') }}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary btn-lg">Publish Listing →</button>
+    </div>
+  </form>
+</div>
+
+<style>
+  @media(max-width:700px){ .form-grid{grid-template-columns:1fr;} }
+</style>
+{% endblock %}

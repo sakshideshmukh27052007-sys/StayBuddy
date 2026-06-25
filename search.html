@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Search Hostels{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section-heading" style="margin-top:1.5rem;">
+    <h2>Search Hostels &amp; PGs</h2>
+    <p>{{ hostels|length }} result{{ 's' if hostels|length != 1 }} found
+      {% if q %} for "<strong>{{ q }}</strong>"{% endif %}
+      {% if city %} in <strong>{{ city }}</strong>{% endif %}
+    </p>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <form method="get" action="{{ url_for('search') }}">
+      <div class="filter-group" style="flex:2;min-width:220px;">
+        <label>Search</label>
+        <input type="text" name="q" value="{{ q }}" placeholder="City, college, or area…">
+      </div>
+      <div class="filter-group">
+        <label>City</label>
+        <select name="city">
+          <option value="">All Cities</option>
+          {% for c in cities %}
+            <option value="{{ c['city'] }}" {% if c['city']==city %}selected{% endif %}>{{ c['city'] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>For</label>
+        <select name="gender">
+          <option value="">Anyone</option>
+          <option value="male"   {% if gender=='male'   %}selected{% endif %}>Boys</option>
+          <option value="female" {% if gender=='female' %}selected{% endif %}>Girls</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Max Rent (₹)</label>
+        <input type="number" name="max_rent" value="{{ max_rent }}" placeholder="e.g. 10000" min="0" step="500">
+      </div>
+      <div class="filter-group" style="flex:0;min-width:unset;">
+        <label>&nbsp;</label>
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
+      {% if q or city or gender or max_rent %}
+        <div class="filter-group" style="flex:0;min-width:unset;">
+          <label>&nbsp;</label>
+          <a href="{{ url_for('search') }}" class="btn btn-secondary">Clear</a>
+        </div>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Results -->
+  {% if hostels %}
+    <div class="hostel-grid">
+      {% for h in hostels %}
+        <a href="{{ url_for('hostel_detail', hostel_id=h['id']) }}" style="text-decoration:none;color:inherit;">
+          <div class="hostel-card">
+            {% if h['primary_photo'] %}
+              <img src="{{ url_for('uploaded_file', filename=h['primary_photo']) }}" alt="{{ h['name'] }}" class="hostel-card-img">
+            {% else %}
+              <div class="hostel-img-placeholder">🏠</div>
+            {% endif %}
+            <div class="hostel-card-body">
+              <div class="hostel-card-title">{{ h['name'] }}</div>
+              <div class="hostel-location">📍 {{ h['area'] }}, {{ h['city'] }}{% if h['college_nearby'] %} · Near {{ h['college_nearby'] }}{% endif %}</div>
+              <div class="hostel-rent">₹{{ '{:,}'.format(h['monthly_rent']) }}<small>/month</small></div>
+              <div class="hostel-badges">
+                {% if h['vacancy_status'] == 'available' %}
+                  <span class="badge badge-success">✔ Available</span>
+                {% elif h['vacancy_status'] == 'limited' %}
+                  <span class="badge badge-warning">⚡ Limited</span>
+                {% else %}
+                  <span class="badge badge-danger">✗ Full</span>
+                {% endif %}
+                {% if h['gender_pref'] == 'male' %}
+                  <span class="badge badge-blue">👦 Boys</span>
+                {% elif h['gender_pref'] == 'female' %}
+                  <span class="badge badge-purple">👧 Girls</span>
+                {% else %}
+                  <span class="badge badge-gray">👥 Co-ed</span>
+                {% endif %}
+              </div>
+              {% if h['description'] %}
+                <p style="font-size:.88rem;color:var(--muted);margin-bottom:.75rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ h['description'] }}</p>
+              {% endif %}
+              <div class="btn btn-primary btn-sm" style="margin-top:auto;">View Details →</div>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">😕</div>
+      <h3>No hostels found</h3>
+      <p>Try different keywords or remove some filters.</p>
+      <a href="{{ url_for('search') }}" class="btn btn-primary" style="margin-top:1rem;">Clear Filters</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

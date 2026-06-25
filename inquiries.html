@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Inquiries{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <h1>Inquiries</h1>
+      <p class="text-muted">Students interested in your properties</p>
+    </div>
+    <a href="{{ url_for('owner_dashboard') }}" class="btn btn-secondary">← Dashboard</a>
+  </div>
+
+  <!-- Filter by hostel -->
+  {% if hostels %}
+    <div class="filter-bar" style="margin-bottom:1.5rem;">
+      <form method="get" style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;">
+        <div class="filter-group">
+          <label>Filter by Hostel</label>
+          <select name="hostel_id" class="form-control" style="min-width:200px;">
+            <option value="">All Hostels</option>
+            {% for h in hostels %}
+              <option value="{{ h['id'] }}" {% if hostel_filter and hostel_filter|int == h['id'] %}selected{% endif %}>{{ h['name'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        {% if hostel_filter %}
+          <a href="{{ url_for('owner_inquiries') }}" class="btn btn-secondary">Clear</a>
+        {% endif %}
+      </form>
+    </div>
+  {% endif %}
+
+  {% if inquiries %}
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Hostel</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inq in inquiries %}
+            <tr>
+              <td>
+                <div style="font-weight:600;">{{ inq['name'] }}</div>
+                <div style="font-size:.82rem;color:var(--muted);">{{ inq['email'] }}</div>
+                {% if inq['phone'] %}<div style="font-size:.82rem;color:var(--muted);">📞 {{ inq['phone'] }}</div>{% endif %}
+              </td>
+              <td>
+                <a href="{{ url_for('hostel_detail', hostel_id=inq['hostel_id']) }}" style="font-weight:500;">{{ inq['hostel_name'] }}</a>
+              </td>
+              <td>
+                <p style="font-size:.88rem;color:var(--muted);max-width:280px;">{{ inq['message'] }}</p>
+              </td>
+              <td style="white-space:nowrap;font-size:.85rem;color:var(--muted);">
+                {{ inq['created_at'][:10] }}
+              </td>
+              <td>
+                {% if inq['student_id'] %}
+                  <a href="{{ url_for('conversation', partner_id=inq['student_id']) }}?hostel_id={{ inq['hostel_id'] }}" class="btn btn-primary btn-sm">💬 Reply</a>
+                {% else %}
+                  <a href="mailto:{{ inq['email'] }}" class="btn btn-secondary btn-sm">📧 Email</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📬</div>
+      <h3>No inquiries yet</h3>
+      <p>When students submit inquiries for your hostels, they'll appear here.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

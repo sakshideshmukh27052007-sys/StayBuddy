@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- ── Hero ── -->
+<section class="hero">
+  <h1>Find Your Perfect<br>PG &amp; Hostel Near College</h1>
+  <p>Search from hundreds of verified accommodations near top colleges across India</p>
+
+  <form action="{{ url_for('search') }}" method="get">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" placeholder="Search by city, college, or area…" autocomplete="off">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </form>
+</section>
+
+<!-- ── Stats ── -->
+<section class="container" style="margin-top: 2.5rem;">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-icon">🏠</span>
+      <div>
+        <div class="stat-value">500+</div>
+        <div class="stat-label">Verified Hostels</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">🎓</span>
+      <div>
+        <div class="stat-value">50+</div>
+        <div class="stat-label">Cities Covered</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">👨‍🎓</span>
+      <div>
+        <div class="stat-value">10K+</div>
+        <div class="stat-label">Students Helped</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">⭐</span>
+      <div>
+        <div class="stat-value">4.7</div>
+        <div class="stat-label">Average Rating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Browse by City ── -->
+<section class="container" style="margin-top: 2.5rem;">
+  <div class="section-heading">
+    <h2>Browse by City</h2>
+    <p>Popular cities with student accommodations</p>
+  </div>
+  <div style="display: flex; flex-wrap: wrap; gap: .75rem;">
+    {% set city_icons = {'Delhi':'🏛️','Mumbai':'🌊','Bangalore':'🌿','Pune':'🎓','Chennai':'🌞','Hyderabad':'💎','Kolkata':'🎨','Jaipur':'🏰'} %}
+    {% for city_row in cities %}
+      <a href="{{ url_for('search', city=city_row['city']) }}" class="badge badge-blue" style="font-size:.95rem;padding:.5rem 1.1rem;">
+        {{ city_icons.get(city_row['city'], '🏙️') }} {{ city_row['city'] }}
+      </a>
+    {% endfor %}
+    <a href="{{ url_for('search') }}" class="badge badge-gray" style="font-size:.95rem;padding:.5rem 1.1rem;">+ More cities</a>
+  </div>
+</section>
+
+<!-- ── Featured Hostels ── -->
+<section class="container" style="margin-top: 2.5rem;">
+  <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+    <div>
+      <h2>Featured Accommodations</h2>
+      <p>Handpicked hostels with available vacancies</p>
+    </div>
+    <a href="{{ url_for('search') }}" class="btn btn-outline">View All →</a>
+  </div>
+
+  {% if featured %}
+    <div class="hostel-grid">
+      {% for h in featured %}
+        <a href="{{ url_for('hostel_detail', hostel_id=h['id']) }}" style="text-decoration:none;color:inherit;">
+          <div class="hostel-card">
+            {% if h['primary_photo'] %}
+              <img src="{{ url_for('uploaded_file', filename=h['primary_photo']) }}" alt="{{ h['name'] }}" class="hostel-card-img">
+            {% else %}
+              <div class="hostel-img-placeholder">🏠</div>
+            {% endif %}
+            <div class="hostel-card-body">
+              <div class="hostel-card-title">{{ h['name'] }}</div>
+              <div class="hostel-location">📍 {{ h['area'] }}, {{ h['city'] }}{% if h['college_nearby'] %} · Near {{ h['college_nearby'] }}{% endif %}</div>
+              <div class="hostel-rent">₹{{ '{:,}'.format(h['monthly_rent']) }}<small>/month</small></div>
+              <div class="hostel-badges">
+                {% if h['vacancy_status'] == 'available' %}
+                  <span class="badge badge-success">✔ Available</span>
+                {% elif h['vacancy_status'] == 'limited' %}
+                  <span class="badge badge-warning">⚡ Limited Seats</span>
+                {% else %}
+                  <span class="badge badge-danger">✗ Full</span>
+                {% endif %}
+                {% if h['gender_pref'] == 'male' %}
+                  <span class="badge badge-blue">👦 Boys</span>
+                {% elif h['gender_pref'] == 'female' %}
+                  <span class="badge badge-purple">👧 Girls</span>
+                {% else %}
+                  <span class="badge badge-gray">👥 Co-ed</span>
+                {% endif %}
+              </div>
+              <div class="btn btn-primary btn-sm" style="margin-top:auto;">View Details →</div>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🏠</div>
+      <p>No hostels listed yet. Be the first to <a href="{{ url_for('register') }}">add yours</a>!</p>
+    </div>
+  {% endif %}
+</section>
+
+<!-- ── How it Works ── -->
+<section style="background:#f1f5f9;padding:3rem 1.25rem;margin-top:3rem;">
+  <div class="container">
+    <div class="section-heading text-center">
+      <h2>How StayBuddy Works</h2>
+      <p>Simple steps to find your perfect accommodation</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2rem;margin-top:1.5rem;">
+      {% for step in [
+        ('🔍','Search','Search by city, college name, or area to find nearby accommodations.'),
+        ('🏠','Browse','Browse hostel listings with photos, facilities, and pricing.'),
+        ('💬','Connect','Send an inquiry or message the owner directly.'),
+        ('📅','Visit','Schedule a visit to see the place before deciding.')
+      ] %}
+        <div style="text-align:center;">
+          <div style="font-size:2.5rem;margin-bottom:.75rem;">{{ step[0] }}</div>
+          <h3 style="margin-bottom:.4rem;">{{ loop.index }}. {{ step[1] }}</h3>
+          <p style="color:var(--muted);font-size:.9rem;">{{ step[2] }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA for Owners ── -->
+<section class="container" style="margin:3rem auto;text-align:center;">
+  <div class="card" style="background:linear-gradient(135deg,#4f46e5,#06b6d4);border:none;padding:3rem 2rem;">
+    <h2 style="color:#fff;font-size:1.8rem;margin-bottom:.75rem;">Are You a Hostel Owner?</h2>
+    <p style="color:rgba(255,255,255,.85);margin-bottom:1.5rem;">List your property for free and connect with thousands of students looking for accommodations.</p>
+    <a href="{{ url_for('register') }}" class="btn" style="background:#fff;color:var(--primary);font-size:1rem;">List Your Hostel Free →</a>
+  </div>
+</section>
+{% endblock %}
